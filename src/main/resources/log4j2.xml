@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Properties>
+        <Property name="LOG_DIR">${log4j.dir}</Property>
+        <Property name="BASE_PATTERN_LAYOUT">%5p %d{yyyy-MM-dd HH:mm:ss} %c %m %n</Property>
+    </Properties>
+
+    <Appenders>
+        <RollingFile name="ERROR_APPENDER" fileName="${LOG_DIR}/error.log" filePattern="${LOG_DIR}/error-%d{yyyy-MM-dd}.log">
+            <ThresholdFilter level="ERROR"/>
+            <PatternLayout pattern="${BASE_PATTERN_LAYOUT}"/>
+            <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+        </RollingFile>
+
+        <RollingFile name="WARN_APPENDER" fileName="${LOG_DIR}/warn.log" filePattern="${LOG_DIR}/warn-%d{yyyy-MM-dd}.log">
+            <Filters>
+                <ThresholdFilter level="WARN"/>
+                <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="NEUTRAL"/>
+            </Filters>
+            <PatternLayout pattern="${BASE_PATTERN_LAYOUT}"/>
+            <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+        </RollingFile>
+
+        <RollingFile name="INFO_APPENDER" fileName="${LOG_DIR}/info.log" filePattern="${LOG_DIR}/info-%d{yyyy-MM-dd}.log">
+            <Filters>
+                <ThresholdFilter level="INFO"/>
+                <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
+            </Filters>
+            <PatternLayout pattern="${BASE_PATTERN_LAYOUT}"/>
+            <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+        </RollingFile>
+
+        <Console name="STDOUT" target="SYSTEM_OUT">
+            <Filters>
+                <ThresholdFilter level="INFO"/>
+            </Filters>
+            <PatternLayout pattern="${BASE_PATTERN_LAYOUT}"/>
+        </Console>
+    </Appenders>
+
+    <Loggers>
+        <Root level="all">
+            <AppenderRef ref="INFO_APPENDER"/>
+            <AppenderRef ref="WARN_APPENDER"/>
+            <AppenderRef ref="ERROR_APPENDER"/>
+            <AppenderRef ref="STDOUT"/>
+        </Root>
+    </Loggers>
+</Configuration>
