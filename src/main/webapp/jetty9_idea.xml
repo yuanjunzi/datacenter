@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<!DOCTYPE Configure>
+<Configure id="Server" class="org.eclipse.jetty.server.Server">
+
+    <New id="ServerLog" class="java.io.PrintStream">
+        <Arg>
+            <New class="com.git.service.yuanjunzi.boot.MtRolloverFileOutputStream">
+                <Arg><SystemProperty name="jetty.logs" default="./logs"/>/<SystemProperty name="jetty.appkey" default="jetty"/>.log.yyyy_mm_dd</Arg>
+                <Arg type="boolean">true</Arg>
+                <Arg type="int"><SystemProperty name="jetty.log.retainDays" default="30"/></Arg>
+                <Arg type="int"><SystemProperty name="jetty.log.nonCompressDays" default="10"/></Arg>
+                <Arg><Call class="java.util.TimeZone" name="getTimeZone"><Arg>GMT+8</Arg></Call></Arg>
+                <Arg type="string">yyyy-MM-dd</Arg>
+                <Arg type="string"></Arg>
+                <Get id="ServerLogName" name="datedFilename"/>
+            </New>
+        </Arg>
+    </New>
+
+    <Get name="ThreadPool">
+        <Set name="minThreads" type="int"><Property name="threads.min" default="20"/></Set>
+        <Set name="maxThreads" type="int"><Property name="threads.max" default="200"/></Set>
+        <Set name="name">jetty-worker</Set>
+    </Get>
+
+    <Set name="connectors">
+        <Array type="org.eclipse.jetty.server.Connector">
+            <Item>
+                <New class="org.eclipse.jetty.server.ServerConnector">
+                    <Arg><Ref refid="Server"/></Arg>
+                    <Set name="port"><SystemProperty name="jetty.port" default="8080"/></Set>
+                    <Set name="host"><!--<SystemProperty name="jetty.host"/>--></Set>
+                </New>
+            </Item>
+        </Array>
+    </Set>
+
+    <Array id="plusConfig" type="java.lang.String">
+        <Item>com.git.service.yuanjunzi.boot.IdeaWebInfoConfiguration</Item>
+        <Item>org.eclipse.jetty.webapp.WebXmlConfiguration</Item>
+        <Item>org.eclipse.jetty.webapp.MetaInfConfiguration</Item>
+        <Item>org.eclipse.jetty.webapp.FragmentConfiguration</Item>
+        <Item>org.eclipse.jetty.plus.webapp.EnvConfiguration</Item>
+        <Item>org.eclipse.jetty.plus.webapp.PlusConfiguration</Item>
+        <Item>com.git.service.yuanjunzi.boot.IdeaAnnotationConfiguration</Item>
+        <Item>org.eclipse.jetty.webapp.JettyWebXmlConfiguration</Item>
+    </Array>
+
+    <Set name="handler">
+        <New id="Handlers" class="org.eclipse.jetty.server.handler.HandlerCollection">
+            <Set name="handlers">
+                <Array type="org.eclipse.jetty.server.Handler">
+                    <Item>
+                        <New class="org.eclipse.jetty.webapp.WebAppContext">
+                            <Set name="resourceBase"><SystemProperty name="jetty.webroot"/></Set>
+                            <Set name="contextPath"><SystemProperty name="jetty.context" default="/"/></Set>
+                            <Set name="parentLoaderPriority">true</Set>
+                            <!-- <Set name="defaultsDescriptor"><SystemProperty name="jetty.home"/>/etc/webdefault.xml</Set> -->
+                            <Set name="configurationClasses"><Ref id="plusConfig"/></Set>
+                        </New>
+                    </Item>
+                    <Item>
+                        <New class="org.eclipse.jetty.server.handler.RequestLogHandler">
+                            <Set name="requestLog">
+                                <New id="RequestLogImpl" class="org.eclipse.jetty.server.NCSARequestLog">
+                                    <Set name="filename"><SystemProperty name="jetty.logs" default="./logs"/>/<SystemProperty name="jetty.appkey" default="jetty"/>.request.log.yyyy_mm_dd</Set>
+                                    <Set name="filenameDateFormat">yyyy-MM-dd</Set>
+                                    <Set name="retainDays"><SystemProperty name="jetty.request.log.retainDays" default="90"/></Set>
+                                    <Set name="append">true</Set>
+                                    <Set name="extended">false</Set>
+                                    <Set name="logCookies">false</Set>
+                                    <Set name="LogTimeZone">GMT+8</Set>
+                                    <Set name="logLatency">true</Set>
+                                    <Set name="preferProxiedForAddress">true</Set>
+                                </New>
+                            </Set>
+                        </New>
+                    </Item>
+                </Array>
+            </Set>
+        </New>
+    </Set>
+
+    <Set name="stopAtShutdown">true</Set>
+    <Set name="stopTimeout">1000</Set>
+    <!--如果打开了会打非常恐怖的日志,导致启动日志没法看了-->
+    <Set name="dumpAfterStart">false</Set>
+    <Set name="dumpBeforeStop">false</Set>
+</Configure>
